@@ -1,0 +1,116 @@
+
+{
+  "$schema": "https://example.com/schema/cea-model-v1.json",
+  "metadata": {
+    "title": "Cost-Effectiveness of NewDrug vs. Standard Care for Disease X",
+    "model_id": "CEA-Project-001",
+    "analyst": "J. Doe",
+    "currency": "USD",
+    "currency_year": 2024
+  },
+  "analysis_setup": {
+    "type": "Markov",
+    "time_horizon": 20,
+    "time_unit": "years",
+    "cycle_length": 1,
+    "analysis_perspective": "Healthcare Payer",
+    "discount_rates": {
+      "costs": 0.03,
+      "outcomes": 0.03
+    }
+  },
+  "comparators": [
+    { "id": "soc", "name": "Standard of Care" },
+    { "id": "new_drug", "name": "NewDrug" }
+  ],
+  "states": [
+    { "id": "healthy", "name": "Healthy", "initial_proportion": 1.0 },
+    { "id": "sick", "name": "Sick", "initial_proportion": 0.0 },
+    { "id": "dead", "name": "Dead", "initial_proportion": 0.0 }
+  ],
+  "parameters": [
+    {
+      "id": "p_healthy_to_sick",
+      "description": "Annual probability of moving from Healthy to Sick",
+      "type": "probability",
+      "base_case": 0.1,
+      "distribution": { "type": "beta", "mean": 0.1, "se": 0.015 }
+    },
+    {
+      "id": "p_mort_base",
+      "description": "Base all-cause mortality",
+      "type": "probability",
+      "base_case": 0.02,
+      "distribution": { "type": "beta", "mean": 0.02, "se": 0.005 }
+    },
+    {
+      "id": "p_sick_to_dead",
+      "description": "Probability of dying from sickness",
+      "type": "probability",
+      "base_case": 0.05,
+      "distribution": { "type": "beta", "mean": 0.05, "se": 0.01 }
+    },
+    {
+      "id": "rr_new_drug",
+      "description": "Relative risk of progression for NewDrug",
+      "type": "relative_risk",
+      "base_case": 0.7,
+      "distribution": { "type": "lognormal", "meanlog": -0.356, "sdlog": 0.1 }
+    },
+    {
+      "id": "c_drug_new",
+      "description": "Annual cost of NewDrug",
+      "type": "cost",
+      "base_case": 2500,
+      "distribution": { "type": "gamma", "mean": 2500, "se": 150 }
+    },
+    {
+      "id":"c_sick_annual",
+      "description": "Annual cost of managing sick state",
+      "type": "cost",
+      "base_case": 1000,
+      "distribution": { "type": "gamma", "mean": 1000, "se": 100 }
+    },
+    {
+      "id": "u_healthy",
+      "description": "Utility weight for the Healthy state",
+      "type": "utility",
+      "base_case": 0.95,
+      "distribution": { "type": "beta", "mean": 0.95, "se": 0.02 }
+    },
+    {
+      "id": "u_sick",
+      "description": "Utility weight for the Sick state",
+      "type": "utility",
+      "base_case": 0.75,
+      "distribution": { "type": "beta", "mean": 0.75, "se": 0.05 }
+    }
+  ],
+  "model_logic": {
+    "state_values": [
+      { "state_id": "healthy", "cost": 0, "utility": "u_healthy" },
+      { "state_id": "sick", "cost": "c_sick_annual", "utility": "u_sick" },
+      { "state_id": "dead", "cost": 0, "utility": 0 }
+    ],
+    "transition_matrices": [
+      {
+        "comparator_id": "soc",
+        "matrix": [
+          ["1 - p_healthy_to_sick - p_mort_base", "p_healthy_to_sick", "p_mort_base"],
+          [0, "1 - p_sick_to_dead - p_mort_base", "p_sick_to_dead + p_mort_base"],
+          [0, 0, 1]
+        ]
+      },
+      {
+        "comparator_id": "new_drug",
+        "applied_costs": ["c_drug_new"],
+        "matrix": [
+          ["1 - (p_healthy_to_sick * rr_new_drug) - p_mort_base", "(p_healthy_to_sick * rr_new_drug)", "p_mort_base"],
+          [0, "1 - p_sick_to_dead - p_mort_base", "p_sick_to_dead + p_mort_base"],
+          [0, 0, 1]
+        ]
+      }
+    ]
+  }
+}
+
