@@ -1,5 +1,92 @@
 # A Declarative Grammar for Health Economic Models
 
-JSON model input declaration
+JSON model input declaration,
 like e.g. the [vega-lite](https://vega.github.io/vega-lite/) syntax.
-This may involve piping functions to plug in to existing models and simulations.
+
+### Example
+
+```
+{
+  "$schema": "https://example.com/schema/cea-model-v1.json",
+  "metadata": {
+    "title": "Cost-Effectiveness of NewDrug vs. Standard Care for Disease X",
+    "model_id": "CEA-Project-001",
+    "analyst": "J. Doe",
+    "currency": "USD",
+    "currency_year": 2024
+  },
+  "analysis_setup": {
+    "type": "Markov",
+    "time_horizon": 20,
+    "time_unit": "years",
+    "cycle_length": 1,
+    "analysis_perspective": "Healthcare Payer",
+    "discount_rates": {
+      "costs": 0.03,
+      "outcomes": 0.03
+    }
+  }
+}
+{
+  "comparators": [
+    { "id": "soc", "name": "Standard of Care" },
+    { "id": "new_drug", "name": "NewDrug" }
+  ],
+  "states": [
+    { "id": "healthy", "name": "Healthy", "initial_proportion": 1.0 },
+    { "id": "sick", "name": "Sick", "initial_proportion": 0.0 },
+    { "id": "dead", "name": "Dead", "initial_proportion": 0.0 }
+  ]
+}
+{
+  "parameters": [
+    {
+      "id": "p_healthy_to_sick",
+      "description": "Annual probability of moving from Healthy to Sick",
+      "type": "probability",
+      "base_case": 0.1,
+      "distribution": {
+        "type": "beta",
+        "mean": 0.1,
+        "se": 0.015
+      },
+      "data_source": {
+      "citation_full": "Smith J, Doe A. (2023). Progression of Disease X. J Health Econ. 1(2):45-56."
+     }
+      "sensitivity_range": [0.05, 0.15]
+    },
+    {
+      "id": "c_drug_new",
+      "description": "Annual cost of NewDrug",
+      "type": "cost",
+      "currency": "GBP",
+      "year": 2025,
+      "base_case": 2500,
+      "distribution": {
+        "type": "gamma",
+        "mean": 2500,
+        "se": 150
+      },
+      "data_source": {
+        "citation_full": "Smith J, Doe A. (2023). Progression of Disease X. J Health Econ. 1(2):45-56."
+       }
+      "sensitivity_range": [2000, 3000]
+    },
+    {
+      "id": "u_healthy",
+      "description": "Utility weight for the Healthy state",
+      "type": "utility",
+      "base_case": 0.95,
+      "distribution": {
+        "type": "beta",
+        "mean": 0.95,
+        "se": 0.02
+      },
+      "data_source": {
+        "citation_full": "Smith J, Doe A. (2023). Progression of Disease X. J Health Econ. 1(2):45-56."
+       }
+      "sensitivity_range": [0.9, 1.0]
+    }
+  ]
+}
+```
