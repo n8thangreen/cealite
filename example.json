@@ -42,6 +42,9 @@
         "mean": 0.1,
         "se": 0.015
       },
+      "data_source": {
+      "citation_full": "Smith J, Doe A. (2023). Progression of Disease X. J Health Econ. 1(2):45-56."
+     }
       "sensitivity_range": [0.05, 0.15]
     },
     {
@@ -56,6 +59,9 @@
         "mean": 2500,
         "se": 150
       },
+      "data_source": {
+        "citation_full": "Smith J, Doe A. (2023). Progression of Disease X. J Health Econ. 1(2):45-56."
+       }
       "sensitivity_range": [2000, 3000]
     },
     {
@@ -68,6 +74,9 @@
         "mean": 0.95,
         "se": 0.02
       },
+      "data_source": {
+        "citation_full": "Smith J, Doe A. (2023). Progression of Disease X. J Health Econ. 1(2):45-56."
+       }
       "sensitivity_range": [0.9, 1.0]
     }
   ]
