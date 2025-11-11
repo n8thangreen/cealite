@@ -1,0 +1,176 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://n8thangreen.github.io/cea-schema/cea-schema-v1.json",
+  "title": "CEA-Lite Model Specification",
+  "description": "A JSON schema for defining the inputs for a Cost-Effectiveness Analysis (CEA) model.",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "description": "High-level information about the model.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The full title of the analysis."
+        },
+        "model_id": {
+          "type": "string",
+          "description": "A unique project or model identifier."
+        },
+        "analyst": {
+          "type": "string",
+          "description": "The name or initials of the analyst."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The 3-letter ISO 4217 currency code (e.g., USD, GBP)."
+        },
+        "currency_year": {
+          "type": "integer",
+          "description": "The price year for all costs.",
+          "minimum": 1900,
+          "maximum": 2100
+        }
+      },
+      "required": ["title", "currency", "currency_year"]
+    },
+    "analysis_setup": {
+      "description": "Core setup parameters for the analysis.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The type of decision model.",
+          "enum": ["Markov", "Partitioned Survival", "DES (Discrete Event Simulation)"]
+        },
+        "time_horizon": {
+          "type": "integer",
+          "description": "The total time horizon for the model.",
+          "minimum": 1
+        },
+        "time_unit": {
+          "type": "string",
+          "description": "The unit of time for the horizon and cycles.",
+          "enum": ["days", "weeks", "months", "years"]
+        },
+        "cycle_length": {
+          "type": "number",
+          "description": "The length of each model cycle, in the time_unit.",
+          "minimum": 0
+        },
+        "analysis_perspective": {
+          "type": "string",
+          "description": "The perspective of the analysis (e.g., Healthcare Payer, Societal)."
+        },
+        "discount_rates": {
+          "type": "object",
+          "properties": {
+            "costs": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "outcomes": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": ["costs", "outcomes"]
+        }
+      },
+      "required": ["type", "time_horizon", "time_unit", "discount_rates"]
+    },
+    "comparators": {
+      "description": "The strategies, interventions, or comparators being modeled.",
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "A short, unique ID for the comparator (e.g., 'soc')."
+          },
+          "name": {
+            "type": "string",
+            "description": "The full, human-readable name (e.g., 'Standard of Care')."
+          }
+        },
+        "required": ["id", "name"]
+      }
+    },
+    "states": {
+      "description": "The health states in the model (for Markov/Partitioned Survival).",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "A short, unique ID for the state (e.g., 'healthy')."
+          },
+          "name": {
+            "type": "string",
+            "description": "The full, human-readable name (e.g., 'Healthy')."
+          }
+        },
+        "required": ["id", "name"]
+      }
+    },
+    "parameters": {
+      "description": "The list of all model input parameters, their values, and uncertainty distributions.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "A unique ID for the parameter, used in model logic (e.g., 'p_healthy_to_sick')."
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["probability", "rate", "cost", "utility", "relative_risk", "other"]
+          },
+          "base_case": {
+            "type": "number",
+            "description": "The base-case or mean value for the parameter."
+          },
+          "distribution": {
+            "description": "Specification for probabilistic sensitivity analysis (PSA).",
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["beta", "gamma", "lognormal", "normal", "uniform", "constant"]
+              }
+            },
+            "required": ["type"],
+            "additionalProperties": true
+          }
+        },
+        "required": ["id", "description", "type", "base_case"]
+      }
+    },
+    "model_logic": {
+      "description": "Defines how parameters and states connect to form the model.",
+      "type": "object",
+      "properties": {
+        "state_values": {
+          "description": "Assigns costs and utilities to states.",
+          "type": "array"
+        },
+        "transition_matrices": {
+          "description": "Defines the transition logic for each comparator.",
+          "type": "array"
+        }
+      },
+      "required": ["state_values", "transition_matrices"]
+    }
+  },
+  "required": ["metadata", "analysis_setup", "comparators", "states", "parameters", "model_logic"]
+}
