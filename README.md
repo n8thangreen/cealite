@@ -90,3 +90,60 @@ like e.g. the [vega-lite](https://vega.github.io/vega-lite/) syntax.
   ]
 }
 ```
+
+## Parsing in R
+
+The repository includes an R function `parse_cea_model()` in the `R/` folder for parsing CEA-Lite JSON model files into R objects.
+
+### Requirements
+
+The function requires the `jsonlite` package:
+
+```r
+install.packages("jsonlite")
+```
+
+### Usage
+
+To use the parser, source the function and call it with the path to your JSON model file:
+
+```r
+# Load the function
+source("R/parse_cea_model.R")
+
+# Parse a model file
+parsed_model <- parse_cea_model("model.json")
+```
+
+The function will:
+- Parse the JSON file into a structured R list
+- Validate that all required top-level keys are present (`metadata`, `analysis_setup`, `comparators`, `states`, `parameters`, `model_logic`)
+- Convert JSON arrays of objects (like `parameters`) into R data frames
+- Convert other elements (like `metadata`) into named lists
+
+### Accessing Parsed Data
+
+Once parsed, you can access the model components:
+
+```r
+# Access metadata
+print(parsed_model$metadata$title)
+
+# Access analysis setup
+print(paste("Time Horizon:", parsed_model$analysis_setup$time_horizon, "years"))
+
+# Access parameters as a data frame
+print(parsed_model$parameters)
+
+# Access a specific parameter's base case value
+p_value <- parsed_model$parameters[parsed_model$parameters$id == "p_healthy_to_sick", "base_case"]
+print(paste("Base case for p_healthy_to_sick:", p_value))
+
+# Access states
+print(parsed_model$states)
+
+# Access model logic
+print(parsed_model$model_logic$transition_matrices)
+```
+
+See `scripts/example.R` for a complete working example.
