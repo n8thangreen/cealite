@@ -3,6 +3,12 @@
 JSON model input declaration,
 like e.g. the [vega-lite](https://vega.github.io/vega-lite/) syntax.
 
+### Web-tool schema builder
+
+An easy-to-use web interface guides the user in building the model schema and automatically creates the corresponding JSON file to be exported.
+
+Available [here](https://huggingface.co/spaces/n8thangreen/cea-model-builder).
+
 ### Example
 
 ```json
