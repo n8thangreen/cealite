@@ -5,7 +5,7 @@ like e.g. the [vega-lite](https://vega.github.io/vega-lite/) syntax.
 
 ### Example
 
-```
+```json
 {
   "$schema": "https://example.com/schema/cea-model-v1.json",
   "metadata": {
