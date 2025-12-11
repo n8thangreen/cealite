@@ -1,5 +1,8 @@
 # A Declarative Grammar for Health Economic Models
 
+![Work In Progress](https://img.shields.io/badge/Status-Work%20In%20Progress-red)
+> This package is currently a prototype. Contributions and integration with wider HTA standards are welcome.
+
 JSON model input declaration,
 like e.g. the [vega-lite](https://vega.github.io/vega-lite/) syntax.
 
